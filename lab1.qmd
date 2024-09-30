@@ -1,0 +1,144 @@
+---
+title: "EDS 223: week 1 lab"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+install.packages('sf') # vector data
+install.packages('stars')  # raster data
+install.packages('tmap')  # map making! 
+```
+
+```{r}
+library('sf')
+library('stars')
+library('tmap')
+library('here')
+```
+
+```{r}
+# raster of global elevation
+world_elevation <- read_stars(here('data', 'worldelevation.tif'))
+
+# country boundaries
+world_vector <- read_sf(here("data", "worldvector.gpkg"))
+
+# major cities
+world_cities <- read_sf(here("data", "worldcities.gpkg"))
+```
+
+```{r}
+# plotting a single spatial object
+tm_shape(world_elevation) +
+  tm_raster() +
+tm_shape(world_vector) +    # defines the spatial object to plot (the data we use)
+  tm_borders() +    # defines how to plot the object
+  tm_shape(world_cities) +   # add cities to the map as a layer
+  tm_dots()   # show the world_cities as dots
+
+```
+
+```{r}
+tm_shape(world_vector) +
+  tm_polygons(col = "lightblue", # change colors of polygon fill
+              border.col = "black",  # change polygon border color
+              lwd = 0.5,  # change border line width
+              lty = "dashed")  # change border line type
+```
+
+```{r}
+tm_shape(world_vector) +
+  tm_borders(col = "red")
+```
+
+```{r}
+tm_shape(world_vector) +
+  tm_fill(col = "lightblue")
+```
+
+```{r}
+# create a map of CO2 emissions
+tm_shape(world_vector) +
+  tm_fill("CO2_emissions")   # fill polygons with a color palette representing a variable
+```
+
+```{r}
+tm_shape(world_cities) +
+  tm_symbols()
+```
+
+```{r}
+tm_shape(world_vector) +
+  tm_polygons("life_expectancy",
+              palette = c("yellow", "darkgreen"),
+              title = "Life Expectancy (years)")
+```
+
+```{r}
+# palette function
+install.packages("virididLite")
+library(viridisLite)
+
+tm_shape(world_vector) +
+  tm_polygons("life_expectancy",
+              palette = viridis(option = "plasma", 8),
+              title = "Life Expectancy (years)")
+```
+
+```{r}
+tm_shape(world_vector) +
+  tm_polygons(col = "lightblue") +
+  tm_shape(world_cities) +
+  tm_symbols(size = "pop2020",
+             legend.size.is.portrait = TRUE)
+```
+
+```{r}
+tm_shape(world_vector) + 
+  tm_graticules() +
+  tm_fill()
+ 
+```
+
+```{r}
+tm_shape(world_vector) +
+  tm_fill() +
+  tm_scale_bar() +
+  tm_compass(position = c("left", "top"))
+```
+
+```{r}
+tmap_mode("view") # make your map interactive!! woaahh
+
+tm_shape(world_vector) +
+  tm_fill(col = "wb_income_region",
+          palette = viridisLite::plasma(5),
+          title = "Regional Income") +
+  tm_layout(bg.color = "grey95",
+            main.title = "Global Income by Country",
+            frame = FALSE)
+
+```
+
+```{r}
+tmap_mode("plot") # make your map back to static
+
+map1 <- tm_shape(world_vector) +
+  tm_fill(col = "wb_income_region",
+          palette = viridisLite::plasma(5),
+          title = "Regional Income") +
+  tm_layout(bg.color = "grey95",
+            main.title = "Global Income by Country",
+            frame = FALSE)
+
+tmap_save(map1, here("tmap_example.png"))
+```
+
+
+
+
+
+
+
